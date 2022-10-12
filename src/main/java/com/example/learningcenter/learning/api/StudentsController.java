@@ -2,10 +2,14 @@ package com.example.learningcenter.learning.api;
 
 import com.example.learningcenter.learning.domain.model.entity.Student;
 import com.example.learningcenter.learning.domain.service.StudentService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.learningcenter.learning.mapping.StudentMapper;
+import com.example.learningcenter.learning.resource.CreateStudentResource;
+import com.example.learningcenter.learning.resource.StudentResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -14,17 +18,27 @@ import java.util.List;
 public class StudentsController {
     private final StudentService studentService;
 
-    public StudentsController(StudentService studentService) {
+    private final StudentMapper mapper;
+
+    public StudentsController(StudentService studentService, StudentMapper mapper) {
         this.studentService = studentService;
+        this.mapper = mapper;
     }
 
     @GetMapping
-    public List<Student> getAllStudents() {
-        return studentService.getAll();
+    public Page<StudentResource> getAllStudents(Pageable pageable) {
+        return mapper.modelListPage(studentService.getAll(),pageable);
     }
 
     @GetMapping("{studentId}")
-    public Student getStudentById(@PathVariable Long studentId) {
-        return studentService.getById(studentId);
+    public StudentResource getStudentById(@PathVariable Long studentId) {
+        return mapper.toResource(studentService.getById(studentId));
+    }
+
+    @PostMapping
+    public ResponseEntity<StudentResource> createStudent(@RequestBody CreateStudentResource resource){
+        return new ResponseEntity<>(
+                mapper.toResource(
+                        studentService.create(mapper.toModel(resource))), HttpStatus.CREATED);
     }
 }
