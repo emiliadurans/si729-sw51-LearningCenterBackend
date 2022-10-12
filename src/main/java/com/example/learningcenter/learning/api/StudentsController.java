@@ -5,6 +5,7 @@ import com.example.learningcenter.learning.domain.service.StudentService;
 import com.example.learningcenter.learning.mapping.StudentMapper;
 import com.example.learningcenter.learning.resource.CreateStudentResource;
 import com.example.learningcenter.learning.resource.StudentResource;
+import com.example.learningcenter.learning.resource.UpdateStudentResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -40,5 +41,16 @@ public class StudentsController {
         return new ResponseEntity<>(
                 mapper.toResource(
                         studentService.create(mapper.toModel(resource))), HttpStatus.CREATED);
+    }
+
+    @PutMapping("{studentId}")
+    public StudentResource updateStudent(@PathVariable Long studentId,
+                                         @RequestBody UpdateStudentResource resource) {
+        return mapper.toResource(studentService.update(studentId, mapper.toModel(resource)));
+    }
+
+    @DeleteMapping("{studentId}")
+    public ResponseEntity<?> deleteStudent (@PathVariable Long studentId) {
+        return studentService.delete(studentId);
     }
 }
